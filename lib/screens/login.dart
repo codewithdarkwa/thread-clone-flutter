@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:thread_clone_flutter/screens/home.dart';
 
@@ -13,6 +14,22 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  Future<void> login() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+    } catch (e) {
+      print(e);
+      return;
+    }
+    if (mounted) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const Home()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
               width: double.infinity,
               height: 42,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const Home()));
-                },
+                onPressed: login,
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
                 child: const Text("Login"),
               ),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class FeedScreen extends StatefulWidget {
@@ -10,19 +11,23 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                ThreadMessage(),
-                ThreadMessage(),
-                ThreadMessage(),
-                ThreadMessage(),
-                ThreadMessage(),
-                ThreadMessage(),
+                Image.asset(
+                  "assets/thread_logo.png",
+                  width: 30,
+                ),
+                const ThreadMessage(),
+                const ThreadMessage(),
+                const ThreadMessage(),
+                const ThreadMessage(),
+                const ThreadMessage(),
+                const ThreadMessage(),
               ],
             ),
           ),
@@ -62,7 +67,9 @@ class ThreadMessage extends StatelessWidget {
                       const Spacer(),
                       const Text('5min'),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          FirebaseAuth.instance.signOut();
+                        },
                         icon: const Icon(Icons.more_horiz),
                       )
                     ],

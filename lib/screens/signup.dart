@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:thread_clone_flutter/screens/login.dart';
 
@@ -13,6 +15,28 @@ class _SignupScreenState extends State<SignupScreen> {
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
   final usernameController = TextEditingController();
+
+  Future<void> register() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim());
+
+      String userId = userCredential.user!.uid;
+
+      await FirebaseFirestore.instance.collection('users').doc(userId).set(
+          {'name': nameController.text, 'username': usernameController.text});
+
+      if (mounted) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
+      }
+    } catch (e) {
+      print("Error: ${e.toString()}");
+      return;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +140,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 width: double.infinity,
                 height: 42,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: register,
                   style:
                       ElevatedButton.styleFrom(backgroundColor: Colors.black),
                   child: const Text("Sign up"),

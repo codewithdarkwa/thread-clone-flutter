@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "855762833275",
+    "project_id": "thread-clone-tutorial",
+    "storage_bucket": "thread-clone-tutorial.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855762833275:android:3ff6e70c65b7a1474fb7de",
+        "android_client_info": {
+          "package_name": "com.example.thread_clone_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAeIgVMLzWicSC6FEQPog99vot37Kq3j0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
