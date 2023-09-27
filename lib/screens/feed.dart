@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thread_clone_flutter/model/thread_message.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -18,16 +19,20 @@ class _FeedScreenState extends State<FeedScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Image.asset(
-                  "assets/thread_logo.png",
-                  width: 30,
+                Center(
+                  child: Image.asset(
+                    "assets/thread_logo.png",
+                    width: 30,
+                  ),
                 ),
-                const ThreadMessage(),
-                const ThreadMessage(),
-                const ThreadMessage(),
-                const ThreadMessage(),
-                const ThreadMessage(),
-                const ThreadMessage(),
+                ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: threadMessages.length,
+                    itemBuilder: (context, index) {
+                      return ThreadMessageWidget(
+                        message: threadMessages[index],
+                      );
+                    })
               ],
             ),
           ),
@@ -37,10 +42,13 @@ class _FeedScreenState extends State<FeedScreen> {
   }
 }
 
-class ThreadMessage extends StatelessWidget {
-  const ThreadMessage({
+class ThreadMessageWidget extends StatelessWidget {
+  const ThreadMessageWidget({
     super.key,
+    required this.message,
   });
+
+  final ThreadMessage message;
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +57,10 @@ class ThreadMessage extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              'assets/profile.png',
-              width: 45,
+            CircleAvatar(
+              backgroundImage: NetworkImage(
+                  'https://avatars.dicebear.com/api/avataaars/${message.senderName}.png'),
+              backgroundColor: Colors.white,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -60,9 +69,9 @@ class ThreadMessage extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Text(
-                        'Jane Doe',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        message.senderName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const Spacer(),
                       const Text('5min'),
@@ -77,7 +86,7 @@ class ThreadMessage extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Hi everyone how are you all ?'),
+                      Text(message.message),
                       Row(
                         children: [
                           IconButton(
