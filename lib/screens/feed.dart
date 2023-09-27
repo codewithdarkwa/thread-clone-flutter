@@ -74,7 +74,7 @@ class ThreadMessageWidget extends StatelessWidget {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       const Spacer(),
-                      const Text('5min'),
+                      Text(_getTimeDifference(message.timestamp)),
                       IconButton(
                         onPressed: () {
                           FirebaseAuth.instance.signOut();
@@ -123,5 +123,20 @@ class ThreadMessageWidget extends StatelessWidget {
         const Divider()
       ],
     );
+  }
+
+  String _getTimeDifference(DateTime timestamp) {
+    final now = DateTime.now();
+    final difference = now.difference(timestamp);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes} min';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours} hr';
+    } else {
+      return '${difference.inDays} day';
+    }
   }
 }
