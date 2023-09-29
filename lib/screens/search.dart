@@ -64,9 +64,7 @@ class SuggestedFollowerWidget extends StatelessWidget {
       children: [
         ListTile(
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(
-              'https://avatars.dicebear.com/api/avataaars/${follower.username}.png',
-            ),
+            backgroundImage: AssetImage(follower.profileImageUrl),
             backgroundColor: Colors.white,
           ),
           title: Text(follower.username),

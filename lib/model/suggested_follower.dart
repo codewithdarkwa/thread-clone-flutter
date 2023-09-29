@@ -41,37 +41,31 @@ List<SuggestedFollower> suggestedFollowers = [
   SuggestedFollower(
     id: '1',
     username: 'Alice Smith',
-    profileImageUrl: '',
+    profileImageUrl: 'assets/profile_1.jpeg',
     isFollowing: true,
   ),
   SuggestedFollower(
     id: '2',
     username: 'Bob Johnson',
-    profileImageUrl: '',
+    profileImageUrl: 'assets/profile_2.jpeg',
     isFollowing: false,
   ),
   SuggestedFollower(
     id: '3',
     username: 'Eve Williams',
-    profileImageUrl: '',
+    profileImageUrl: 'assets/profile_3.jpeg',
     isFollowing: false,
   ),
   SuggestedFollower(
     id: '4',
     username: 'Charlie Brown',
-    profileImageUrl: '',
+    profileImageUrl: 'assets/profile_4.jpeg',
     isFollowing: true,
   ),
   SuggestedFollower(
     id: '5',
     username: 'Grace Davis',
-    profileImageUrl: '',
-    isFollowing: false,
-  ),
-  SuggestedFollower(
-    id: '6',
-    username: 'Grace Davis',
-    profileImageUrl: '',
+    profileImageUrl: 'assets/profile_5.jpeg',
     isFollowing: false,
   ),
 ];

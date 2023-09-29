@@ -57,7 +57,7 @@ List<ThreadMessage> threadMessages = [
   ThreadMessage(
     id: '1',
     senderName: 'John Doe',
-    senderProfileImageUrl: 'profile_url_1.jpg',
+    senderProfileImageUrl: 'assets/profile_1.jpeg',
     message: 'Hello, how are you?',
     timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
     likesCount: 10,
@@ -67,7 +67,7 @@ List<ThreadMessage> threadMessages = [
   ThreadMessage(
     id: '2',
     senderName: 'Alice Smith',
-    senderProfileImageUrl: 'profile_url_2.jpg',
+    senderProfileImageUrl: 'assets/profile_2.jpeg',
     message: 'I\'m doing well, thanks!',
     timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
     likesCount: 8,
@@ -77,7 +77,7 @@ List<ThreadMessage> threadMessages = [
   ThreadMessage(
     id: '3',
     senderName: 'John Doe',
-    senderProfileImageUrl: 'profile_url_1.jpg',
+    senderProfileImageUrl: 'assets/profile_3.jpeg',
     message: 'That\'s great to hear!',
     timestamp: DateTime.now().subtract(const Duration(minutes: 20)),
     likesCount: 6,
@@ -87,7 +87,7 @@ List<ThreadMessage> threadMessages = [
   ThreadMessage(
     id: '4',
     senderName: 'Eve Williams',
-    senderProfileImageUrl: 'profile_url_3.jpg',
+    senderProfileImageUrl: 'assets/profile_4.jpeg',
     message: 'What\'s new with you?',
     timestamp: DateTime.now().subtract(const Duration(minutes: 15)),
     likesCount: 12,
@@ -97,7 +97,7 @@ List<ThreadMessage> threadMessages = [
   ThreadMessage(
     id: '5',
     senderName: 'Alice Smith',
-    senderProfileImageUrl: 'profile_url_2.jpg',
+    senderProfileImageUrl: 'assets/profile_5.jpeg',
     message: 'I just started a new project at work!',
     timestamp: DateTime.now().subtract(const Duration(minutes: 10)),
     likesCount: 15,
