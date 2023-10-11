@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/src/panel.dart';
 
@@ -13,6 +15,50 @@ class PostScreen extends StatefulWidget {
 }
 
 class _PostScreenState extends State<PostScreen> {
+  final messageController = TextEditingController();
+
+  final currentUser = FirebaseAuth.instance.currentUser;
+  String userName = "";
+  Future<void> postThreadMessage() async {
+    try {
+      if (messageController.text.isNotEmpty) {
+        await FirebaseFirestore.instance.collection('threads').add({
+          'id': currentUser!.uid,
+          'sender': userName,
+          'message': messageController.text,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+        messageController.clear();
+        widget.panelController.close();
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> getCurrentUsername() async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          userName = userDoc['name'];
+        });
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  @override
+  void initState() {
+    getCurrentUsername();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -39,7 +85,7 @@ class _PostScreenState extends State<PostScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: postThreadMessage,
                   child: const Text(
                     'Post',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -65,17 +111,19 @@ class _PostScreenState extends State<PostScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Text(
-                        'codewithdarkwa',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      Text(
+                        userName,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextFormField(
+                        controller: messageController,
                         decoration: const InputDecoration(
                           hintText: 'Start a thread...',
                           hintStyle: TextStyle(fontSize: 14),
                           border: InputBorder.none,
                         ),
                         maxLines: null,
+                        style: const TextStyle(fontSize: 14),
                       )
                     ],
                   ),

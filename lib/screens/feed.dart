@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:thread_clone_flutter/model/thread_message.dart';
@@ -10,6 +11,9 @@ class FeedScreen extends StatefulWidget {
 }
 
 class _FeedScreenState extends State<FeedScreen> {
+  final CollectionReference threadCollection =
+      FirebaseFirestore.instance.collection('threads');
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,12 +29,45 @@ class _FeedScreenState extends State<FeedScreen> {
                     width: 30,
                   ),
                 ),
-                ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: threadMessages.length,
-                    itemBuilder: (context, index) {
-                      return ThreadMessageWidget(
-                        message: threadMessages[index],
+                StreamBuilder(
+                    stream: threadCollection.snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        Center(
+                          child: Text(' error : ${snapshot.error}'),
+                        );
+                      }
+                      final messages = snapshot.data!.docs;
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          final messageData =
+                              messages[index].data() as Map<String, dynamic>;
+
+                          DateTime timestamp = DateTime.now();
+                          if (messageData.containsKey('timestamp') &&
+                              messageData['timestamp'] != null) {
+                            timestamp = (messageData['timestamp'] as Timestamp)
+                                .toDate();
+                          }
+
+                          final message = ThreadMessage(
+                            id: messageData['id'],
+                            senderName: messageData['sender'],
+                            senderProfileImageUrl: 'assets/profile_1.jpeg',
+                            message: messageData['message'],
+                            timestamp: timestamp,
+                          );
+                          return ThreadMessageWidget(
+                            message: message,
+                          );
+                        },
                       );
                     })
               ],

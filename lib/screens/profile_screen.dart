@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:thread_clone_flutter/model/thread_message.dart';
+import 'package:thread_clone_flutter/screens/feed.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -8,6 +12,54 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final currentUser = FirebaseAuth.instance.currentUser;
+  String userName = "";
+  String fullName = "";
+
+  Future<void> fetchUserData() async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser!.uid)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          userName = userDoc['username'];
+          fullName = userDoc['name'];
+        });
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Stream<List<ThreadMessage>> fetchUserThreads() {
+    return FirebaseFirestore.instance
+        .collection('threads')
+        .where('sender', isEqualTo: fullName)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final messageData = doc.data();
+        final timestamp = (messageData['timestamp'] as Timestamp).toDate();
+        return ThreadMessage(
+          id: doc.id,
+          senderName: messageData['sender'],
+          senderProfileImageUrl: 'assets/profile_1.jpeg',
+          message: messageData['message'],
+          timestamp: timestamp,
+        );
+      }).toList();
+    });
+  }
+
+  @override
+  void initState() {
+    fetchUserData();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -19,11 +71,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const ListTile(
-                title: Text('CodeWithDarkwa'),
-                subtitle: Text('@codewithdarkwa'),
-                contentPadding: EdgeInsets.all(0),
-                trailing: CircleAvatar(
+              ListTile(
+                title: Text(fullName),
+                subtitle: Text('@$userName'),
+                contentPadding: const EdgeInsets.all(0),
+                trailing: const CircleAvatar(
                   backgroundImage: AssetImage('assets/profile.png'),
                   radius: 25,
                 ),
@@ -78,16 +130,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Tab(text: 'Reposts'),
                 ],
               ),
-              const Expanded(
+              Expanded(
                 child: TabBarView(
                   children: [
-                    Center(
-                      child: Text('Your threads here'),
+                    StreamBuilder(
+                      stream: fetchUserThreads(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          final userThread = snapshot.data;
+                          return ListView.builder(
+                            itemCount: userThread!.length,
+                            itemBuilder: (context, index) {
+                              final messageData = userThread[index];
+                              final message = ThreadMessage(
+                                id: messageData.id,
+                                senderName: messageData.senderName,
+                                senderProfileImageUrl:
+                                    messageData.senderProfileImageUrl,
+                                message: messageData.message,
+                                timestamp: messageData.timestamp,
+                              );
+                              return ThreadMessageWidget(message: message);
+                            },
+                          );
+                        } else if (snapshot.hasError) {
+                          Center(
+                            child: Text('Error: ${snapshot.error}'),
+                          );
+                        }
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      },
                     ),
-                    Center(
+                    const Center(
                       child: Text('Your replies here'),
                     ),
-                    Center(
+                    const Center(
                       child: Text('Your reposts here'),
                     ),
                   ],
