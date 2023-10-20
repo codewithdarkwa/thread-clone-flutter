@@ -14,6 +14,21 @@ class _FeedScreenState extends State<FeedScreen> {
   final CollectionReference threadCollection =
       FirebaseFirestore.instance.collection('threads');
 
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('users');
+
+  Future<String> getSenderImageUrl(String id) async {
+    final userDoc = await userCollection.doc(id).get();
+
+    if (userDoc.exists) {
+      final userData = userDoc.data() as Map<String, dynamic>;
+      return userData['profileImageUrl'] ??
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU";
+    } else {
+      return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,16 +72,25 @@ class _FeedScreenState extends State<FeedScreen> {
                                 .toDate();
                           }
 
-                          final message = ThreadMessage(
-                            id: messageData['id'],
-                            senderName: messageData['sender'],
-                            senderProfileImageUrl: 'assets/profile_1.jpeg',
-                            message: messageData['message'],
-                            timestamp: timestamp,
-                          );
-                          return ThreadMessageWidget(
-                            message: message,
-                          );
+                          return FutureBuilder(
+                              future: getSenderImageUrl(messageData['id']),
+                              builder: (context, snapshot) {
+                                if (!snapshot.hasData) {
+                                  return const Text('');
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                }
+                                final message = ThreadMessage(
+                                  id: messageData['id'],
+                                  senderName: messageData['sender'],
+                                  senderProfileImageUrl: snapshot.data ?? "",
+                                  message: messageData['message'],
+                                  timestamp: timestamp,
+                                );
+                                return ThreadMessageWidget(
+                                  message: message,
+                                );
+                              });
                         },
                       );
                     })
