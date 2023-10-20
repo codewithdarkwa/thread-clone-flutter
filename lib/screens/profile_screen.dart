@@ -117,7 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   radius: 25,
                                 ),
                         ),
-                        const Text('Bio needs to be here...'),
+                        Text(user?.bio ?? 'Bio needs to be here...'),
                         const Padding(
                           padding: EdgeInsets.only(top: 15.0),
                           child: Text(
