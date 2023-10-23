@@ -17,6 +17,8 @@ class _FeedScreenState extends State<FeedScreen> {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
 
+  final userId = FirebaseAuth.instance.currentUser!.uid;
+
   Future<String> getSenderImageUrl(String id) async {
     final userDoc = await userCollection.doc(id).get();
 
@@ -81,14 +83,18 @@ class _FeedScreenState extends State<FeedScreen> {
                                   return Text('Error: ${snapshot.error}');
                                 }
                                 final message = ThreadMessage(
-                                  id: messageData['id'],
-                                  senderName: messageData['sender'],
-                                  senderProfileImageUrl: snapshot.data ?? "",
-                                  message: messageData['message'],
-                                  timestamp: timestamp,
-                                );
+                                    id: messageData['id'],
+                                    senderName: messageData['sender'],
+                                    senderProfileImageUrl: snapshot.data ?? "",
+                                    message: messageData['message'],
+                                    timestamp: timestamp,
+                                    likes: messageData['likes'] ?? []);
                                 return ThreadMessageWidget(
                                   message: message,
+                                  onDisLike: () =>
+                                      dislikeThreadMessage(messages[index].id),
+                                  onLike: () =>
+                                      likeThreadMessage(messages[index].id),
                                 );
                               });
                         },
@@ -101,16 +107,41 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
     );
   }
+
+  Future<void> likeThreadMessage(String id) async {
+    try {
+      threadCollection.doc(id).update({
+        'likes': FieldValue.arrayUnion([userId])
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> dislikeThreadMessage(String id) async {
+    try {
+      threadCollection.doc(id).update({
+        'likes': FieldValue.arrayRemove([userId])
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 }
 
 class ThreadMessageWidget extends StatelessWidget {
-  const ThreadMessageWidget({
+  ThreadMessageWidget({
     super.key,
     required this.message,
+    required this.onLike,
+    required this.onDisLike,
   });
 
   final ThreadMessage message;
+  final void Function() onLike;
+  final void Function() onDisLike;
 
+  final userId = FirebaseAuth.instance.currentUser!.uid;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -149,9 +180,31 @@ class ThreadMessageWidget extends StatelessWidget {
                       Text(message.message),
                       Row(
                         children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.favorite_outline),
+                          Column(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  if (message.likes.contains(userId)) {
+                                    onDisLike();
+                                  } else {
+                                    onLike();
+                                  }
+                                },
+                                icon: message.likes.contains(userId)
+                                    ? const Icon(
+                                        Icons.favorite,
+                                        color: Colors.red,
+                                      )
+                                    : const Icon(
+                                        Icons.favorite_outline,
+                                      ),
+                              ),
+                              Text(
+                                message.likes.isEmpty
+                                    ? ''
+                                    : message.likes.length.toString(),
+                              )
+                            ],
                           ),
                           IconButton(
                             onPressed: () {},

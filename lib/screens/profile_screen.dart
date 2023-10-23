@@ -17,7 +17,8 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final currentUser = FirebaseAuth.instance.currentUser;
   late Stream<UserModel> userStream;
-
+  final CollectionReference threadCollection =
+      FirebaseFirestore.instance.collection('threads');
   PanelController panelController = PanelController();
 
   bool isPanelOpen = false;
@@ -45,6 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU',
           message: messageData['message'],
           timestamp: timestamp,
+          likes: messageData['likes'],
         );
       }).toList();
     });
@@ -186,16 +188,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       itemBuilder: (context, index) {
                                         final messageData = userThread[index];
                                         final message = ThreadMessage(
-                                          id: messageData.id,
-                                          senderName: messageData.senderName,
-                                          senderProfileImageUrl: user
-                                                  .profileImageUrl ??
-                                              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU',
-                                          message: messageData.message,
-                                          timestamp: messageData.timestamp,
-                                        );
+                                            id: messageData.id,
+                                            senderName: messageData.senderName,
+                                            senderProfileImageUrl: user
+                                                    .profileImageUrl ??
+                                                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU',
+                                            message: messageData.message,
+                                            timestamp: messageData.timestamp,
+                                            likes: messageData.likes);
                                         return ThreadMessageWidget(
-                                            message: message);
+                                          message: message,
+                                          onDisLike: () => dislikeThreadMessage(
+                                              userThread[index].id),
+                                          onLike: () => likeThreadMessage(
+                                              userThread[index].id),
+                                        );
                                       },
                                     );
                                   } else if (snapshot.hasError) {
@@ -227,5 +234,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> likeThreadMessage(String id) async {
+    try {
+      threadCollection.doc(id).update({
+        'likes': FieldValue.arrayUnion([currentUser!.uid])
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> dislikeThreadMessage(String id) async {
+    try {
+      threadCollection.doc(id).update({
+        'likes': FieldValue.arrayRemove([currentUser!.uid])
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }
