@@ -18,7 +18,6 @@ class ThreadMessage {
     required this.message,
     required this.timestamp,
     required this.likes,
-    // required this.likesCount,
     // required this.retweetCount,
     // required this.commentsCount,
   });
