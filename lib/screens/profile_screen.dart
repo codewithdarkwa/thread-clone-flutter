@@ -46,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU',
           message: messageData['message'],
           timestamp: timestamp,
-          likes: messageData['likes'],
+          likes: messageData['likes'] ?? [],
         );
       }).toList();
     });
