@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:thread_clone_flutter/model/suggested_follower.dart';
 
@@ -9,6 +10,8 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  final CollectionReference userCollection =
+      FirebaseFirestore.instance.collection('users');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,9 +45,37 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                ...suggestedFollowers.map((follower) {
-                  return SuggestedFollowerWidget(follower: follower);
-                }).toList()
+                StreamBuilder(
+                  stream: userCollection.snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    }
+                    final users = snapshot.data!.docs;
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: users.length,
+                      itemBuilder: (contex, index) {
+                        final user =
+                            users[index].data() as Map<String, dynamic>;
+
+                        final follower = SuggestedFollower(
+                          id: user['id'],
+                          username: user['username'],
+                          profileImageUrl: user['profileImageUrl'],
+                          isFollowing: false,
+                        );
+                        return SuggestedFollowerWidget(follower: follower);
+                      },
+                    );
+                  },
+                )
               ],
             ),
           ),
@@ -64,7 +95,7 @@ class SuggestedFollowerWidget extends StatelessWidget {
       children: [
         ListTile(
           leading: CircleAvatar(
-            backgroundImage: AssetImage(follower.profileImageUrl),
+            backgroundImage: NetworkImage(follower.profileImageUrl),
             backgroundColor: Colors.white,
           ),
           title: Text(follower.username),
