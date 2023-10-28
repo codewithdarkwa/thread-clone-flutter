@@ -10,7 +10,6 @@ class ThreadMessageWidget extends StatelessWidget {
     required this.onLike,
     required this.onDisLike,
     required this.onComment,
-    required this.panelController,
   });
 
   final ThreadMessage message;
@@ -18,7 +17,7 @@ class ThreadMessageWidget extends StatelessWidget {
   final void Function() onDisLike;
   final void Function() onComment;
 
-  PanelController panelController = PanelController();
+  final PanelController panelController = PanelController();
   final userId = FirebaseAuth.instance.currentUser!.uid;
   @override
   Widget build(BuildContext context) {
