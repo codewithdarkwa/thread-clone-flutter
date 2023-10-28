@@ -114,8 +114,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              CommentScreen(message: message),
+                                          builder: (context) => CommentScreen(
+                                              message: message,
+                                              panelController: panelController),
                                         ),
                                       );
                                     },
@@ -126,6 +127,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                       onLike: () =>
                                           likeThreadMessage(messages[index].id),
                                       onComment: () {},
+                                      panelController: panelController,
                                     ),
                                   );
                                 });

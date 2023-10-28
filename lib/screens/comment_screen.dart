@@ -3,7 +3,10 @@ import 'package:thread_clone_flutter/model/thread_message.dart';
 import 'package:thread_clone_flutter/widgets/thread_message.dart';
 
 class CommentScreen extends StatefulWidget {
-  const CommentScreen({super.key, required this.message});
+  const CommentScreen({
+    super.key,
+    required this.message,
+  });
 
   final ThreadMessage message;
   @override
