@@ -5,7 +5,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:thread_clone_flutter/model/thread_message.dart';
 import 'package:thread_clone_flutter/model/user.dart';
 import 'package:thread_clone_flutter/screens/edit_profile.dart';
-import 'package:thread_clone_flutter/screens/feed.dart';
+import 'package:thread_clone_flutter/widgets/thread_message.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -47,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           message: messageData['message'],
           timestamp: timestamp,
           likes: messageData['likes'] ?? [],
+          comments: messageData['comments'] ?? [],
         );
       }).toList();
     });
@@ -195,13 +196,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU',
                                             message: messageData.message,
                                             timestamp: messageData.timestamp,
-                                            likes: messageData.likes);
+                                            likes: messageData.likes,
+                                            comments: messageData.comments);
                                         return ThreadMessageWidget(
                                           message: message,
                                           onDisLike: () => dislikeThreadMessage(
                                               userThread[index].id),
                                           onLike: () => likeThreadMessage(
                                               userThread[index].id),
+                                          onComment: () {},
                                         );
                                       },
                                     );

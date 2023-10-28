@@ -8,8 +8,7 @@ class ThreadMessage {
   final String message;
   final DateTime timestamp;
   final List likes;
-  // final int retweetCount;
-  // final int commentsCount;
+  final List comments;
 
   ThreadMessage({
     required this.id,
@@ -18,8 +17,7 @@ class ThreadMessage {
     required this.message,
     required this.timestamp,
     required this.likes,
-    // required this.retweetCount,
-    // required this.commentsCount,
+    required this.comments,
   });
 
   Map<String, dynamic> toMap() {
@@ -29,18 +27,21 @@ class ThreadMessage {
       'senderProfileImageUrl': senderProfileImageUrl,
       'message': message,
       'timestamp': timestamp.millisecondsSinceEpoch,
-      'likes': likes
+      'likes': likes,
+      'comments': comments
     };
   }
 
   factory ThreadMessage.fromMap(Map<String, dynamic> map) {
     return ThreadMessage(
-        id: map['id'] as String,
-        senderName: map['senderName'] as String,
-        senderProfileImageUrl: map['senderProfileImageUrl'] as String,
-        message: map['message'] as String,
-        timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
-        likes: List.from((map['likes'] as List)));
+      id: map['id'] as String,
+      senderName: map['senderName'] as String,
+      senderProfileImageUrl: map['senderProfileImageUrl'] as String,
+      message: map['message'] as String,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] as int),
+      likes: List.from((map['likes'] as List)),
+      comments: List.from((map['comments'] as List)),
+    );
   }
 
   String toJson() => json.encode(toMap());
