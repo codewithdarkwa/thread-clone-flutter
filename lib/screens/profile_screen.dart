@@ -205,7 +205,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           onLike: () => likeThreadMessage(
                                               userThread[index].id),
                                           onComment: () {},
-                                          panelController: panelController,
                                         );
                                       },
                                     );
