@@ -35,6 +35,7 @@ class _FeedScreenState extends State<FeedScreen> {
     }
   }
 
+  String threadDoc = '';
   PanelController panelController = PanelController();
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,8 @@ class _FeedScreenState extends State<FeedScreen> {
             topRight: Radius.circular(25),
           ),
           panelBuilder: (ScrollController sc) {
-            return const PostCommentScreen();
+            return PostCommentScreen(
+                threadDoc: threadDoc, panelController: panelController);
           },
           body: SingleChildScrollView(
             child: Padding(
@@ -126,7 +128,11 @@ class _FeedScreenState extends State<FeedScreen> {
                                           messages[index].id),
                                       onLike: () =>
                                           likeThreadMessage(messages[index].id),
-                                      onComment: () {},
+                                      onComment: () {
+                                        setState(() {
+                                          threadDoc = messages[index].id;
+                                        });
+                                      },
                                       panelController: panelController,
                                     ),
                                   );

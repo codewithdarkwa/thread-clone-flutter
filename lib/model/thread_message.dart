@@ -48,4 +48,15 @@ class ThreadMessage {
 
   factory ThreadMessage.fromJson(String source) =>
       ThreadMessage.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  factory ThreadMessage.empty() {
+    return ThreadMessage(
+        id: '',
+        senderName: '',
+        senderProfileImageUrl: '',
+        message: '',
+        timestamp: DateTime.now(),
+        likes: [],
+        comments: []);
+  }
 }
