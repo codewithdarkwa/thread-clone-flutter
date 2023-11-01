@@ -117,8 +117,10 @@ class _FeedScreenState extends State<FeedScreen> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) => CommentScreen(
-                                              message: message,
-                                              panelController: panelController),
+                                            message: message,
+                                            panelController: panelController,
+                                            threadId: messages[index].id,
+                                          ),
                                         ),
                                       );
                                     },
