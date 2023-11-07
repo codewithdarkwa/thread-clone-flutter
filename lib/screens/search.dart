@@ -163,7 +163,7 @@ class _SuggestedFollowerWidgetState extends State<SuggestedFollowerWidget> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     InkWell(
-                      onTap: isFollowing ? widget.follow : widget.unFollow,
+                      onTap: isFollowing ? widget.unFollow : widget.follow,
                       child: Container(
                         alignment: Alignment.center,
                         width: 110,
