@@ -121,11 +121,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                         ),
                         Text(user?.bio ?? 'Bio needs to be here...'),
-                        const Padding(
-                          padding: EdgeInsets.only(top: 15.0),
-                          child: Text(
-                            '100 followers',
-                            style: TextStyle(color: Colors.grey),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 15.0),
+                          child: Row(
+                            children: [
+                              Text(
+                                '${user!.followers.length.toString()} followers',
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  '${user.following.length.toString()} following',
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Padding(
@@ -180,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: TabBarView(
                             children: [
                               StreamBuilder(
-                                stream: fetchUserThreads(user!),
+                                stream: fetchUserThreads(user),
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
                                     final userThread = snapshot.data;
