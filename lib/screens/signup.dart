@@ -30,6 +30,8 @@ class _SignupScreenState extends State<SignupScreen> {
           'id': userId,
           'name': nameController.text,
           'username': usernameController.text,
+          'following': [],
+          'followers': [],
         },
       );
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:thread_clone_flutter/model/suggested_follower.dart';
+import 'package:thread_clone_flutter/model/user.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -12,6 +13,27 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
+
+  final userId = FirebaseAuth.instance.currentUser!.uid;
+
+  Future<void> followUser(UserModel user) async {
+    await userCollection.doc(userId).update({
+      'following': FieldValue.arrayUnion([user.id])
+    });
+    await userCollection.doc(user.id).update({
+      'followers': FieldValue.arrayUnion([userId])
+    });
+  }
+
+  Future<void> unFollowUser(UserModel user) async {
+    await userCollection.doc(userId).update({
+      'following': FieldValue.arrayRemove([user.id])
+    });
+    await userCollection.doc(user.id).update({
+      'followers': FieldValue.arrayRemove([userId])
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,7 +68,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
                 const SizedBox(height: 20),
                 StreamBuilder(
-                  stream: userCollection.snapshots(),
+                  stream: userCollection
+                      .where('id', isNotEqualTo: userId)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData) {
                       return const Center(
@@ -65,13 +89,19 @@ class _SearchScreenState extends State<SearchScreen> {
                         final user =
                             users[index].data() as Map<String, dynamic>;
 
-                        final follower = SuggestedFollower(
+                        final userInfo = UserModel(
                           id: user['id'],
                           username: user['username'],
                           profileImageUrl: user['profileImageUrl'],
-                          isFollowing: false,
+                          name: user['name'],
+                          followers: [],
+                          following: [],
                         );
-                        return SuggestedFollowerWidget(follower: follower);
+                        return SuggestedFollowerWidget(
+                          user: userInfo,
+                          follow: () => followUser(userInfo),
+                          unFollow: () => unFollowUser(userInfo),
+                        );
                       },
                     );
                   },
@@ -85,41 +115,74 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-class SuggestedFollowerWidget extends StatelessWidget {
-  const SuggestedFollowerWidget({super.key, required this.follower});
+class SuggestedFollowerWidget extends StatefulWidget {
+  const SuggestedFollowerWidget({
+    super.key,
+    required this.user,
+    required this.follow,
+    required this.unFollow,
+  });
 
-  final SuggestedFollower follower;
+  final UserModel user;
+  final VoidCallback follow;
+  final VoidCallback unFollow;
+
+  @override
+  State<SuggestedFollowerWidget> createState() =>
+      _SuggestedFollowerWidgetState();
+}
+
+class _SuggestedFollowerWidgetState extends State<SuggestedFollowerWidget> {
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
     return Column(
       children: [
         ListTile(
           leading: CircleAvatar(
-            backgroundImage: NetworkImage(follower.profileImageUrl),
+            backgroundImage: NetworkImage(widget.user.profileImageUrl ??
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz8cLf8-P2P8GZ0-KiQ-OXpZQ4bebpa3K3Dw&usqp=CAU"),
             backgroundColor: Colors.white,
           ),
-          title: Text(follower.username),
-          subtitle: Text(follower.username.toLowerCase()),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                alignment: Alignment.center,
-                width: 110,
-                height: 35,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: follower.isFollowing
-                    ? const Text(
-                        'Following',
-                        style: TextStyle(color: Colors.grey),
-                      )
-                    : const Text('Follow'),
-              )
-            ],
-          ),
+          title: Text(widget.user.username),
+          subtitle: Text(widget.user.username.toLowerCase()),
+          trailing: StreamBuilder(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(userId)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const SizedBox.shrink();
+                }
+                final currentUser = UserModel.fromMap(
+                    snapshot.data!.data() as Map<String, dynamic>);
+                final isFollowing =
+                    currentUser.following.contains(widget.user.id);
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: isFollowing ? widget.follow : widget.unFollow,
+                      child: Container(
+                        alignment: Alignment.center,
+                        width: 110,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: isFollowing
+                            ? const Text(
+                                'Following',
+                                style: TextStyle(color: Colors.grey),
+                              )
+                            : const Text('Follow'),
+                      ),
+                    )
+                  ],
+                );
+              }),
         ),
         const Divider(),
       ],
