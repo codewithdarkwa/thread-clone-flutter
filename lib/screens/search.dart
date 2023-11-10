@@ -16,6 +16,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   final userId = FirebaseAuth.instance.currentUser!.uid;
 
+  String searchQuery = "";
+  final searchController = TextEditingController();
+  List<UserModel> searchUsers(List<UserModel> users, String query) {
+    return users.where((user) {
+      return user.username.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+  }
+
   Future<void> followUser(UserModel user) async {
     await userCollection.doc(userId).update({
       'following': FieldValue.arrayUnion([user.id])
@@ -32,6 +40,16 @@ class _SearchScreenState extends State<SearchScreen> {
     await userCollection.doc(user.id).update({
       'followers': FieldValue.arrayRemove([userId])
     });
+  }
+
+  @override
+  void initState() {
+    searchController.addListener(() {
+      setState(() {
+        searchQuery = searchController.text;
+      });
+    });
+    super.initState();
   }
 
   @override
@@ -58,6 +76,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextFormField(
+                      controller: searchController,
                       decoration: const InputDecoration(
                         hintText: 'Search',
                         border: InputBorder.none,
@@ -82,25 +101,29 @@ class _SearchScreenState extends State<SearchScreen> {
                       );
                     }
                     final users = snapshot.data!.docs;
+
+                    final allUsers = users.map((doc) {
+                      final user = doc.data() as Map<String, dynamic>;
+                      return UserModel(
+                        id: user['id'],
+                        username: user['username'],
+                        profileImageUrl: user['profileImageUrl'],
+                        name: user['name'],
+                        followers: [],
+                        following: [],
+                      );
+                    }).toList();
+                    final filteredUsers = searchUsers(allUsers, searchQuery);
                     return ListView.builder(
                       shrinkWrap: true,
-                      itemCount: users.length,
+                      itemCount: filteredUsers.length,
                       itemBuilder: (contex, index) {
-                        final user =
-                            users[index].data() as Map<String, dynamic>;
+                        final user = filteredUsers[index];
 
-                        final userInfo = UserModel(
-                          id: user['id'],
-                          username: user['username'],
-                          profileImageUrl: user['profileImageUrl'],
-                          name: user['name'],
-                          followers: [],
-                          following: [],
-                        );
                         return SuggestedFollowerWidget(
-                          user: userInfo,
-                          follow: () => followUser(userInfo),
-                          unFollow: () => unFollowUser(userInfo),
+                          user: user,
+                          follow: () => followUser(user),
+                          unFollow: () => unFollowUser(user),
                         );
                       },
                     );
